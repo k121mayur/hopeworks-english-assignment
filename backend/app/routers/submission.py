@@ -14,12 +14,13 @@ from ..schemas import SubmissionDetail
 from ..scoring import score_reading
 from ..whisper_service import transcribe_audio
 
+from sqlalchemy.orm import selectinload
+
 router = APIRouter(prefix="/api/submission", tags=["Submissions"])
 
 AUDIO_DIR = os.path.join(os.path.dirname(__file__), "..", "..", "data", "audio")
 ALLOWED_EXTENSIONS = {".wav", ".mp3", ".m4a", ".webm", ".ogg"}
 MAX_FILE_SIZE = 25 * 1024 * 1024  # 25 MB
-
 
 @router.post("", response_model=SubmissionDetail, status_code=status.HTTP_201_CREATED)
 async def submit_reading(
@@ -76,7 +77,6 @@ async def submit_reading(
     )
     db.add(submission)
     await db.flush()
-    await db.refresh(submission)
 
     # Save word errors
     for position, expected, spoken in result.errors:
@@ -88,11 +88,15 @@ async def submit_reading(
                 position=position,
             )
         )
-    await db.flush()
+    await db.commit()
 
-    # Reload with word errors
-    await db.refresh(submission)
-    return submission
+    # Reload with word errors eagerly loaded
+    res = await db.execute(
+        select(Submission)
+        .options(selectinload(Submission.word_errors))
+        .where(Submission.id == submission.id)
+    )
+    return res.scalar_one()
 
 
 @router.get("/my", response_model=list[SubmissionDetail])
@@ -103,6 +107,7 @@ async def my_submissions(
     """Return all submissions for the current student."""
     result = await db.execute(
         select(Submission)
+        .options(selectinload(Submission.word_errors))
         .where(Submission.student_id == current_user.id)
         .order_by(Submission.created_at.desc())
     )

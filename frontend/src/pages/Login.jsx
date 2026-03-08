@@ -16,64 +16,73 @@ export default function Login() {
     setLoading(true);
     try {
       const role = await login(email, password);
-      navigate(role === 'admin' ? '/admin' : '/dashboard');
+      // Optional: Add a slight delay for animation before navigating
+      setTimeout(() => {
+        navigate(role === 'admin' ? '/admin' : '/dashboard');
+      }, 300);
     } catch (err) {
-      setError(err.response?.data?.detail || 'Login failed');
-    } finally {
+      setError(err.response?.data?.detail || 'Login failed. Please check your credentials.');
       setLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4">
-      {/* Ambient glow */}
-      <div className="fixed top-1/4 left-1/3 w-96 h-96 bg-primary/20 rounded-full blur-[128px] pointer-events-none" />
-      <div className="fixed bottom-1/3 right-1/4 w-72 h-72 bg-secondary/15 rounded-full blur-[100px] pointer-events-none" />
+    <div className="min-h-screen flex items-center justify-center p-4 relative overflow-hidden bg-surface-dim">
+      {/* Premium Animated Background Elements */}
+      <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none z-0">
+        <div className="absolute top-[10%] left-[15%] w-[40rem] h-[40rem] rounded-full bg-blue-300/20 blur-[120px] mix-blend-multiply animate-float"></div>
+        <div className="absolute bottom-[10%] right-[10%] w-[50rem] h-[50rem] rounded-full bg-purple-300/20 blur-[150px] mix-blend-multiply animate-float" style={{ animationDelay: '2s', animationDuration: '20s' }}></div>
+        <div className="absolute top-[40%] left-[60%] w-[30rem] h-[30rem] rounded-full bg-emerald-300/20 blur-[100px] mix-blend-multiply animate-float" style={{ animationDelay: '4s', animationDuration: '18s' }}></div>
+      </div>
 
-      <div className="glass-card p-8 w-full max-w-md relative overflow-hidden">
-        {/* Top gradient accent */}
-        <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-primary via-secondary to-accent" />
-
-        <div className="text-center mb-8">
-          <div className="w-14 h-14 mx-auto rounded-2xl bg-gradient-to-br from-primary to-secondary flex items-center justify-center text-3xl mb-4 shadow-lg shadow-primary/30">
-            📖
-          </div>
-          <h1 className="text-2xl font-bold bg-gradient-to-r from-primary-light to-secondary bg-clip-text text-transparent">
-            ReadAssess
-          </h1>
-          <p className="text-sm text-text-muted mt-1">Student Reading Assessment System</p>
+      {/* Main Login Card */}
+      <div className="card-elevated glass px-10 pb-12 pt-24 w-full max-w-lg z-10 animate-fade-in relative mt-20 shadow-2xl flex flex-col justify-center min-h-[480px]">
+        
+        {/* Floating Logo Atop the Card exactly centered */}
+        <div className="absolute -top-[4.5rem] left-1/2 -translate-x-1/2 w-[9rem] h-[9rem] bg-white rounded-full shadow-2xl border border-outline-variant p-6 flex items-center justify-center transition-all hover:scale-110 hover:-translate-y-2 duration-500 z-20 group">
+          <div className="absolute inset-0 bg-gradient-to-br from-white to-blue-50/80 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+          <img src="/silicon-mango-logo.png" alt="Silicon Mango Logo" className="w-full h-full object-contain drop-shadow-[0_8px_16px_rgba(0,0,0,0.1)] relative z-10 transition-transform duration-700 ease-out group-hover:rotate-12 group-hover:scale-110" />
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-5">
+        <div className="text-center mb-10" style={{marginTop: '30px'}}>
+          <h1 className="text-2xl sm:text-3xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-slate-900 to-slate-700 tracking-tight font-heading drop-shadow-sm pb-1">
+            Welcome to English Playground
+          </h1>
+          <p className="text-[16px] text-text-secondary mt-4 font-medium tracking-wide" style={{margin: '10px'}}>
+            Practice English with confidence
+          </p>
+        </div>
+
+        <form onSubmit={handleSubmit} className="space-y-7">
           {error && (
-            <div className="p-3 rounded-lg bg-danger/15 border border-danger/30 text-danger text-sm text-center">
+            <div className="p-4 rounded-xl bg-danger-container text-danger text-sm font-medium text-center border border-red-200 animate-fade-in">
               {error}
             </div>
           )}
 
-          <div>
-            <label className="block text-xs font-medium text-text-secondary mb-1.5" htmlFor="email">
-              Email
+          <div className="input-group mt-20" style={{margin: '20px'}}>
+            <label className="block text-sm font-bold text-text-primary mb-2 tracking-wide" htmlFor="email">
+              Email Address
             </label>
             <input
               id="email"
               type="email"
-              className="input"
-              placeholder="you@school.edu"
+              className="input bg-white/70 focus:bg-white shadow-[0_2px_10px_rgba(0,0,0,0.02)] border-outline-variant py-3.5 placeholder-text-muted/60 transition-all duration-300"
+              placeholder="student@school.edu"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
             />
           </div>
 
-          <div>
-            <label className="block text-xs font-medium text-text-secondary mb-1.5" htmlFor="password">
+          <div className="input-group" style={{margin: '20px'}}>
+            <label className="block text-sm font-bold text-text-primary mb-2 tracking-wide" htmlFor="password">
               Password
             </label>
             <input
               id="password"
               type="password"
-              className="input"
+              className="input bg-white/70 focus:bg-white shadow-[0_2px_10px_rgba(0,0,0,0.02)] border-outline-variant py-3.5 placeholder-text-muted/60 transition-all duration-300"
               placeholder="••••••••"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
@@ -83,13 +92,30 @@ export default function Login() {
 
           <button
             type="submit"
-            className="btn btn-primary w-full py-3 text-base"
+            style={{marginLeft: '25px', marginRight : '20px'}}
+            className="btn btn-primary w-[90%] py-4 mt-8 text-[17px] shadow-[0_8px_20px_-6px_rgba(15,23,42,0.4)] hover:shadow-[0_15px_30px_-8px_rgba(15,23,42,0.5)] hover:-translate-y-1 transition-all duration-300 font-bold tracking-widest text-white rounded-xl overflow-hidden relative group"
             disabled={loading}
             id="login-button"
           >
-            {loading ? 'Signing in…' : 'Sign In'}
+            <div className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300 ease-out"></div>
+            <span className="relative z-10">
+            {loading ? (
+              <span className="flex items-center justify-center gap-3">
+                <svg className="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                Authenticating...
+              </span>
+            ) : 'Sign In'}
+            </span>
           </button>
         </form>
+      </div>
+
+      {/* Footer placed at the absolute bottom of the screen */}
+      <div className="absolute bottom-8 w-full text-center text-[13px] font-semibold tracking-wide text-text-muted z-10 animate-fade-in" style={{ animationDelay: '0.6s', animationFillMode: 'both' }}>
+        <p>© {new Date().getFullYear()} <a href="https://siliconmango.com" target="_blank" rel="noopener noreferrer">Silicon Mango</a>. All rights reserved.</p>
       </div>
     </div>
   );

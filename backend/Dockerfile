@@ -18,4 +18,6 @@ COPY . .
 
 EXPOSE 8000
 
-CMD ["uv", "run", "uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
+# Use the venv created by uv sync directly instead of `uv run`
+# This avoids re-creating a venv and re-downloading packages at runtime
+CMD ["/app/.venv/bin/uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]

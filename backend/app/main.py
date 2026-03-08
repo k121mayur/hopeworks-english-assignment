@@ -8,7 +8,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy import select
 
-from .auth import hash_password
+from .auth import hash_password, verify_password
 from .database import Base, engine, async_session
 from .models import User
 from .routers import admin, auth, reports, story, submission
@@ -57,7 +57,8 @@ async def on_startup():
             result = await session.execute(
                 select(User).where(User.email == admin_email)
             )
-            if result.scalar_one_or_none() is None:
+            admin_user = result.scalar_one_or_none()
+            if admin_user is None:
                 admin_user = User(
                     email=admin_email,
                     password_hash=hash_password(admin_password),
@@ -68,7 +69,16 @@ async def on_startup():
                 await session.commit()
                 logger.info("Admin user created: %s", admin_email)
             else:
-                logger.info("Admin user already exists.")
+                # Re-hash password if stored hash is corrupted (passlib compat fix)
+                try:
+                    if not verify_password(admin_password, admin_user.password_hash):
+                        raise ValueError("mismatch")
+                except Exception:
+                    admin_user.password_hash = hash_password(admin_password)
+                    await session.commit()
+                    logger.info("Admin password re-hashed (fixed corrupt hash)")
+                else:
+                    logger.info("Admin user already exists.")
 
 
 @app.get("/")
