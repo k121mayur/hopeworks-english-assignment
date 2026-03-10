@@ -62,8 +62,7 @@ export default function StudentDashboard() {
       <div className="fixed top-0 left-0 w-full h-full overflow-hidden pointer-events-none z-0">
         <div className="absolute top-[10%] left-[60%] w-[40%] h-[40%] rounded-full bg-blue-50 opacity-40 blur-[100px] mix-blend-multiply"></div>
       </div>
-      <div className="flex items-center justify-center max-w-full">
-      <main className="max-w-3xl mx-auto px-4 py-10 space-y-8 relative z-10 animate-fade-in">
+      <main className="max-w-3xl mx-auto px-4 sm:px-6 py-8 sm:py-10 space-y-6 sm:space-y-8 relative z-10 animate-fade-in w-full">
         <div className="mb-6 text-left">
           <h2 className="text-2xl font-semibold text-text-primary tracking-tight font-heading">Today's Reading Assignment</h2>
           <span className="text-sm font-medium text-text-muted mt-1 block">{new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric'})}</span>
@@ -81,14 +80,14 @@ export default function StudentDashboard() {
         )}
 
         {story && !result && (
-          <div className="space-y-6 pb-32" style={{marginTop: '20px'}}>
-            <div className="" style={{marginBottom: '20px'}}>
+          <div className="space-y-5 sm:space-y-6 pb-32 mt-5">
+            <div className="mb-5">
               <div className="card-elevated p-1 shadow-2xl border border-outline-variant bg-white/95 backdrop-blur-sm pointer-events-auto">
                 <Recorder onRecorded={(blob) => { setAudioBlob(blob); setUploadFile(null); }} />
               </div>
             </div>
 
-            <div style={{marginBottom: '20px'}} className="card p-6 border-dashed border-2 hover:border-primary/40 transition-colors group cursor-pointer relative overflow-hidden bg-white/50 hover:bg-white/80 mt-12">
+            <div className="mb-5 card p-5 sm:p-6 border-dashed border-2 hover:border-primary/40 transition-colors group cursor-pointer relative overflow-hidden bg-white/50 hover:bg-white/80 mt-8 sm:mt-12">
               <div className="flex flex-row items-center justify-start gap-4 text-left pointer-events-none">
                 <div className="w-10 h-10 rounded-full bg-primary-container text-primary flex items-center justify-center group-hover:scale-110 transition-transform">
                   <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
@@ -228,7 +227,6 @@ export default function StudentDashboard() {
           </div>
         )}
       </main>
-      </div>
     </div>
   );
 }

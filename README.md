@@ -1,7 +1,7 @@
 # ReadAssess
 **Powered by Silicon Mango**
 
-![Silicon Mango Logo](./images/silicon-mango-logo.png)
+![Silicon Mango Logo](./images/Mauli_Logo-removebg-preview.png)
 
 ReadAssess is a comprehensive English Reading Assessment Auto-Checker designed for students and educators. It provides daily reading assignments, records student audio, and uses AI (Faster-Whisper) to analyze pronunciation and accuracy. The application offers dedicated dashboards for both students and administrators.
 

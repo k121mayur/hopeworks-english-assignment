@@ -27,7 +27,7 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4 relative overflow-hidden bg-surface-dim">
+    <div className="min-h-[100dvh] flex flex-col items-center justify-center p-4 sm:p-6 md:p-8 relative overflow-hidden bg-surface-dim">
       {/* Premium Animated Background Elements */}
       <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none z-0">
         <div className="absolute top-[10%] left-[15%] w-[40rem] h-[40rem] rounded-full bg-blue-300/20 blur-[120px] mix-blend-multiply animate-float"></div>
@@ -36,38 +36,38 @@ export default function Login() {
       </div>
 
       {/* Main Login Card */}
-      <div className="card-elevated glass px-10 pb-12 pt-24 w-full max-w-lg z-10 animate-fade-in relative mt-20 shadow-2xl flex flex-col justify-center min-h-[480px]">
+      <div className="card-elevated glass px-6 sm:px-10 pb-10 sm:pb-12 pt-20 sm:pt-24 w-full max-w-lg z-10 animate-fade-in relative mt-16 sm:mt-20 shadow-2xl flex flex-col justify-center min-h-[400px] sm:min-h-[480px]">
         
         {/* Floating Logo Atop the Card exactly centered */}
-        <div className="absolute -top-[2.5rem] left-1/2 -translate-x-1/2 w-[9rem] h-[9rem] bg-white rounded-full shadow-2xl border border-outline-variant p-6 flex items-center justify-center transition-all hover:scale-110 hover:-translate-y-2 duration-500 z-20 group">
+        <div className="absolute -top-12 sm:-top-[4.5rem] left-1/2 -translate-x-1/2 w-24 h-24 sm:w-[9rem] sm:h-[9rem] bg-white rounded-full shadow-2xl border border-outline-variant p-4 sm:p-6 flex items-center justify-center transition-all hover:scale-110 hover:-translate-y-2 duration-500 z-20 group">
           <div className="absolute inset-0 bg-gradient-to-br from-white to-blue-50/80 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
           <img src="/Mauli_Logo-removebg-preview.png" alt="Silicon Mango Logo" className="w-full h-full object-contain drop-shadow-[0_8px_16px_rgba(0,0,0,0.1)] relative z-10 transition-transform duration-700 ease-out group-hover:rotate-12 group-hover:scale-110" />
         </div>
 
-        <div className="text-center mb-10" style={{marginTop: '30px'}}>
-          <h1 className="text-2xl sm:text-3xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-slate-900 to-slate-700 tracking-tight font-heading drop-shadow-sm pb-1">
+        <div className="text-center mb-8 sm:mb-10 mt-6 sm:mt-8">
+          <h1 className="text-2xl sm:text-3xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-slate-900 to-slate-700 tracking-tight font-heading drop-shadow-sm pb-1 leading-tight">
             Welcome to English Playground
           </h1>
-          <p className="text-[16px] text-text-secondary mt-4 font-medium tracking-wide" style={{margin: '10px'}}>
+          <p className="text-sm sm:text-[16px] text-text-secondary mt-3 sm:mt-4 font-medium tracking-wide">
             Practice English with confidence
           </p>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-7">
+        <form onSubmit={handleSubmit} className="space-y-6 sm:space-y-7">
           {error && (
-            <div className="p-4 rounded-xl bg-danger-container text-danger text-sm font-medium text-center border border-red-200 animate-fade-in">
+            <div className="p-4 rounded-xl bg-danger-container text-danger text-sm font-medium text-center border border-red-200 animate-fade-in mt-2 sm:mt-6">
               {error}
             </div>
           )}
 
-          <div className="input-group mt-20" style={{margin: '20px'}}>
+          <div className="input-group mt-6 sm:mt-8">
             <label className="block text-sm font-bold text-text-primary mb-2 tracking-wide" htmlFor="email">
               Email Address
             </label>
             <input
               id="email"
               type="email"
-              className="input bg-white/70 focus:bg-white shadow-[0_2px_10px_rgba(0,0,0,0.02)] border-outline-variant py-3.5 placeholder-text-muted/60 transition-all duration-300"
+              className="input bg-white/70 focus:bg-white shadow-[0_2px_10px_rgba(0,0,0,0.02)] border-outline-variant py-3 sm:py-3.5 placeholder-text-muted/60 transition-all duration-300"
               placeholder="student@school.edu"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
@@ -75,14 +75,14 @@ export default function Login() {
             />
           </div>
 
-          <div className="input-group" style={{margin: '20px'}}>
+          <div className="input-group">
             <label className="block text-sm font-bold text-text-primary mb-2 tracking-wide" htmlFor="password">
               Password
             </label>
             <input
               id="password"
               type="password"
-              className="input bg-white/70 focus:bg-white shadow-[0_2px_10px_rgba(0,0,0,0.02)] border-outline-variant py-3.5 placeholder-text-muted/60 transition-all duration-300"
+              className="input bg-white/70 focus:bg-white shadow-[0_2px_10px_rgba(0,0,0,0.02)] border-outline-variant py-3 sm:py-3.5 placeholder-text-muted/60 transition-all duration-300"
               placeholder="••••••••"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
@@ -92,8 +92,7 @@ export default function Login() {
 
           <button
             type="submit"
-            style={{marginLeft: '25px', marginRight : '20px'}}
-            className="btn btn-primary w-[90%] py-4 mt-8 text-[17px] shadow-[0_8px_20px_-6px_rgba(15,23,42,0.4)] hover:shadow-[0_15px_30px_-8px_rgba(15,23,42,0.5)] hover:-translate-y-1 transition-all duration-300 font-bold tracking-widest text-white rounded-xl overflow-hidden relative group"
+            className="btn btn-primary w-full py-3.5 sm:py-4 mt-6 sm:mt-8 text-base sm:text-[17px] shadow-[0_8px_20px_-6px_rgba(15,23,42,0.4)] hover:shadow-[0_15px_30px_-8px_rgba(15,23,42,0.5)] hover:-translate-y-1 transition-all duration-300 font-bold tracking-widest text-white rounded-xl overflow-hidden relative group"
             disabled={loading}
             id="login-button"
           >
@@ -114,8 +113,8 @@ export default function Login() {
       </div>
 
       {/* Footer placed at the absolute bottom of the screen */}
-      <div className="absolute bottom-8 w-full text-center text-[13px] font-semibold tracking-wide text-text-muted z-10 animate-fade-in" style={{ animationDelay: '0.6s', animationFillMode: 'both' }}>
-        <p>© {new Date().getFullYear()} | Developed by <a href="https://siliconmango.com" target="_blank" rel="noopener noreferrer" style={{color:"#FF8C00"}}>Silicon Mango</a> | All rights reserved.</p>
+      <div className="mt-auto pt-8 pb-4 w-full text-center text-xs sm:text-[13px] font-semibold tracking-wide text-text-muted z-10 animate-fade-in" style={{ animationDelay: '0.6s', animationFillMode: 'both' }}>
+        <p>© {new Date().getFullYear()} | Developed by <a href="https://siliconmango.com" target="_blank" rel="noopener noreferrer" className="text-orange-500 hover:text-orange-600 transition-colors">Silicon Mango</a> | All rights reserved.</p>
       </div>
     </div>
   );

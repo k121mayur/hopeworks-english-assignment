@@ -58,13 +58,13 @@ export default function AdminDashboard() {
         </div>
 
         {/* Segmented Control Tab bar */}
-        <div className="flex justify-center mb-10 animate-fade-in w-full" style={{ animationDelay: '0.1s', animationFillMode: 'both' }}>
-          <div className="inline-flex bg-white p-2 rounded-2xl shadow-sm border border-outline-variant gap-1 overflow-x-auto w-full max-w-2xl justify-between">
+        <div className="flex justify-center mb-8 sm:mb-10 animate-fade-in w-full px-2" style={{ animationDelay: '0.1s', animationFillMode: 'both' }}>
+          <div className="inline-flex bg-white p-1.5 sm:p-2 rounded-2xl shadow-sm border border-outline-variant gap-1 overflow-x-auto w-full max-w-2xl justify-start sm:justify-between scrollbar-hide snap-x">
             {TABS.map((t) => (
               <button
                 key={t.key}
                 onClick={() => setTab(t.key)}
-                className={`flex-1 flex justify-center items-center gap-2 px-4 py-2.5 rounded-xl font-semibold text-sm transition-all duration-300 whitespace-nowrap ${
+                className={`flex-1 flex justify-center items-center gap-2 px-3 sm:px-4 py-2 sm:py-2.5 rounded-xl font-semibold text-xs sm:text-sm transition-all duration-300 whitespace-nowrap snap-center min-w-[100px] sm:min-w-[120px] ${
                   tab === t.key 
                     ? 'bg-primary-container text-primary shadow-sm scale-100' 
                     : 'bg-transparent text-text-secondary hover:text-text-primary hover:bg-surface-dim'
@@ -261,12 +261,12 @@ function ClassesTab() {
   };
 
   return (
-    <div className="space-y-8 max-w-4xl mx-auto">
-      <div className="card-elevated p-6 flex flex-col md:flex-row gap-6 items-end bg-white my-10" style={{margin: "10px"}}>
+    <div className="space-y-6 sm:space-y-8 max-w-4xl mx-auto w-full px-2 sm:px-0">
+      <div className="card-elevated p-5 sm:p-6 flex flex-col md:flex-row gap-4 sm:gap-6 items-end bg-white my-6 sm:my-10 w-full m-0">
         <div className="flex-1 w-full">
           <h3 className="text-lg font-bold font-heading text-text-primary mb-1">Create New Class</h3>
           <p className="text-sm text-text-muted mb-4">Add a new class to organize your students.</p>
-          <form onSubmit={create} className="flex gap-3">
+          <form onSubmit={create} className="flex flex-col sm:flex-row gap-3">
             <input 
               className="input flex-1 shadow-sm font-medium" 
               placeholder="e.g. Grade 4 English" 
@@ -280,8 +280,8 @@ function ClassesTab() {
         </div>
       </div>
 
-      <div className="card-elevated overflow-hidden border border-outline-variant bg-white" style={{margin: "10px"}}>
-        <div className="p-6 border-b border-outline-variant bg-surface-dim/30 flex justify-between items-center">
+      <div className="card-elevated overflow-hidden border border-outline-variant bg-white w-full m-0">
+        <div className="p-4 sm:p-6 border-b border-outline-variant bg-surface-dim/30 flex justify-between items-center">
           <h3 className="text-lg font-bold font-heading text-text-primary">All Classes</h3>
           <span className="text-xs font-semibold px-3 py-1 bg-surface-dim rounded-full text-text-secondary border border-outline-variant">{classes.length} total</span>
         </div>
@@ -356,10 +356,10 @@ function StudentsTab() {
   };
 
   return (
-    <div className="space-y-8 w-full max-w-5xl mx-auto">
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+    <div className="space-y-6 sm:space-y-8 w-full max-w-5xl mx-auto px-2 sm:px-0">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8 w-full">
         {/* Create student */}
-        <div className="card-elevated p-6 bg-white" style={{margin: "10px"}}>
+        <div className="card-elevated p-5 sm:p-6 bg-white w-full m-0">
           <h3 className="text-lg font-bold font-heading text-text-primary mb-1">Onboard Student</h3>
           <p className="text-sm text-text-muted mb-5">Create a new student credential.</p>
           <form onSubmit={create} className="space-y-4">
@@ -375,31 +375,31 @@ function StudentsTab() {
               <label className="text-xs font-semibold text-text-secondary mb-1 uppercase tracking-wider">Password</label>
               <input className="input" type="password" placeholder="••••••••" value={form.password} onChange={(e) => setForm({ ...form, password: e.target.value })} required />
             </div>
-            <button className="btn btn-primary w-full mt-2" style={{marginTop: "10px"}} disabled={loading}>Register Student</button>
+            <button className="btn btn-primary w-full mt-3 sm:mt-4" disabled={loading}>Register Student</button>
           </form>
         </div>
 
         {/* Assign to class */}
-        <div className="card-elevated p-6 bg-white relative overflow-hidden" style={{margin: "10px"}}>
+        <div className="card-elevated p-5 sm:p-6 bg-white relative overflow-hidden w-full m-0">
           <div className="absolute -right-10 -top-10 w-40 h-40 bg-accent/5 rounded-full blur-3xl pointer-events-none"></div>
           <h3 className="text-lg font-bold font-heading text-text-primary mb-1">Class Enrollment</h3>
           <p className="text-sm text-text-muted mb-5">Assign an existing student to a class.</p>
           <form onSubmit={assign} className="space-y-4">
-            <div className="input-group" style={{marginTop: "10px"}}>
+            <div className="input-group mt-3">
               <label className="text-xs font-semibold text-text-secondary mb-1 uppercase tracking-wider">Select Student</label>
               <select className="input" value={assignForm.student_id} onChange={(e) => setAssignForm({ ...assignForm, student_id: e.target.value })} required>
                 <option value="">Choose a student...</option>
                 {students.map((s) => <option key={s.id} value={s.id}>{s.name} ({s.email})</option>)}
               </select>
             </div>
-            <div className="input-group" style={{marginTop: "10px"}}>
+            <div className="input-group mt-3">
               <label className="text-xs font-semibold text-text-secondary mb-1 uppercase tracking-wider">Select Class</label>
               <select className="input" value={assignForm.class_id} onChange={(e) => setAssignForm({ ...assignForm, class_id: e.target.value })} required>
                 <option value="">Choose a class...</option>
                 {classes.map((c) => <option key={c.id} value={c.id}>{c.class_name}</option>)}
               </select>
             </div>
-            <button className="btn btn-accent w-full mt-2" style={{marginTop: "10px"}}>Assign Enrollment</button>
+            <button className="btn btn-accent w-full mt-3 sm:mt-4">Assign Enrollment</button>
           </form>
         </div>
       </div>
@@ -466,9 +466,9 @@ function ReportsTab() {
   }, [selectedStudent]);
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 w-full px-2 sm:px-0">
       <div className="flex justify-center mb-6">
-        <div className="flex gap-2 p-1.5 bg-white border border-outline-variant rounded-xl inline-flex shadow-sm" style={{marginTop: "10px"}}>
+        <div className="flex gap-2 p-1.5 bg-white border border-outline-variant rounded-xl inline-flex shadow-sm mt-3">
           <button 
             onClick={() => setView('progress')} 
             className={`px-6 py-2 rounded-lg text-sm font-bold transition-all ${view === 'progress' ? 'bg-primary-container text-primary shadow-sm' : 'text-text-secondary hover:text-text-primary'}`}
@@ -484,9 +484,9 @@ function ReportsTab() {
         </div>
       </div>
 
-      <div className="animate-fade-in relative">
+      <div className="animate-fade-in relative w-full">
         {view === 'progress' && (
-          <div className="card-elevated p-8 bg-white min-h-[400px] max-w-4xl mx-auto" style={{margin: "10px"}}>
+          <div className="card-elevated p-5 sm:p-8 bg-white min-h-[400px] max-w-4xl mx-auto w-full m-0">
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
               <div>
                 <h3 className="text-xl font-bold font-heading text-text-primary">Accuracy Tracking</h3>
@@ -560,7 +560,7 @@ function ReportsTab() {
         )}
 
         {view === 'words' && (
-          <div className="card-elevated p-8 bg-white max-w-4xl mx-auto" style={{margin: "10px"}}>
+          <div className="card-elevated p-5 sm:p-8 bg-white max-w-4xl mx-auto w-full m-0">
             <div className="mb-8">
               <h3 className="text-xl font-bold font-heading text-text-primary">Most Mispronounced Words</h3>
               <p className="text-sm text-text-muted">An aggregated view of terms students struggle with globally.</p>
