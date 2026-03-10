@@ -27,7 +27,7 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-[100dvh] flex flex-col items-center justify-center p-4 sm:p-6 md:p-8 relative overflow-hidden bg-surface-dim">
+    <div className="min-h-[100dvh] flex flex-col items-center justify-center relative overflow-hidden bg-surface-dim">
       {/* Premium Animated Background Elements */}
       <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none z-0">
         <div className="absolute top-[10%] left-[15%] w-[40rem] h-[40rem] rounded-full bg-blue-300/20 blur-[120px] mix-blend-multiply animate-float"></div>
@@ -44,7 +44,7 @@ export default function Login() {
           <img src="/Mauli_Logo-removebg-preview.png" alt="Silicon Mango Logo" className="w-full h-full object-contain drop-shadow-[0_8px_16px_rgba(0,0,0,0.1)] relative z-10 transition-transform duration-700 ease-out group-hover:rotate-12 group-hover:scale-110" />
         </div>
 
-        <div className="text-center mb-8 sm:mb-10 mt-6 sm:mt-8">
+        <div className="text-center">
           <h1 className="text-2xl sm:text-3xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-slate-900 to-slate-700 tracking-tight font-heading drop-shadow-sm pb-1 leading-tight">
             Welcome to English Playground
           </h1>
@@ -67,7 +67,7 @@ export default function Login() {
             <input
               id="email"
               type="email"
-              className="input bg-white/70 focus:bg-white shadow-[0_2px_10px_rgba(0,0,0,0.02)] border-outline-variant py-3 sm:py-3.5 placeholder-text-muted/60 transition-all duration-300"
+              className="input bg-white/70 focus:bg-white shadow-[0_2px_10px_rgba(0,0,0,0.02)] border-outline-variant placeholder-text-muted/60 transition-all duration-300"
               placeholder="student@school.edu"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
@@ -82,7 +82,7 @@ export default function Login() {
             <input
               id="password"
               type="password"
-              className="input bg-white/70 focus:bg-white shadow-[0_2px_10px_rgba(0,0,0,0.02)] border-outline-variant py-3 sm:py-3.5 placeholder-text-muted/60 transition-all duration-300"
+              className="input bg-white/70 focus:bg-white shadow-[0_2px_10px_rgba(0,0,0,0.02)] border-outline-variant placeholder-text-muted/60 transition-all duration-300"
               placeholder="••••••••"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
@@ -92,7 +92,7 @@ export default function Login() {
 
           <button
             type="submit"
-            className="btn btn-primary w-full py-3.5 sm:py-4 mt-6 sm:mt-8 text-base sm:text-[17px] shadow-[0_8px_20px_-6px_rgba(15,23,42,0.4)] hover:shadow-[0_15px_30px_-8px_rgba(15,23,42,0.5)] hover:-translate-y-1 transition-all duration-300 font-bold tracking-widest text-white rounded-xl overflow-hidden relative group"
+            className="btn btn-primary w-full  text-base sm:text-[17px] shadow-[0_8px_20px_-6px_rgba(15,23,42,0.4)] hover:shadow-[0_15px_30px_-8px_rgba(15,23,42,0.5)] hover:-translate-y-1 transition-all duration-300 font-bold tracking-widest text-white rounded-xl overflow-hidden relative group"
             disabled={loading}
             id="login-button"
           >
