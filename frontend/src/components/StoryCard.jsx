@@ -1,8 +1,8 @@
 export default function StoryCard({ story }) {
   if (!story) {
     return (
-      <div className="card-elevated p-10 text-center bg-surface w-full">
-        <div className="w-16 h-16 mx-auto bg-slate-100 rounded-2xl flex items-center justify-center mb-4 border border-outline-variant">
+      <div className="card-elevated p-10 text-left bg-surface w-full">
+        <div className="w-16 h-16 bg-slate-100 rounded-2xl flex items-center justify-center mb-4 border border-outline-variant">
           <span className="text-3xl">📚</span>
         </div>
         <h3 className="text-xl font-semibold text-text-primary font-heading tracking-tight">No Story Today</h3>

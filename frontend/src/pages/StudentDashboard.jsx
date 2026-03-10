@@ -62,16 +62,16 @@ export default function StudentDashboard() {
       <div className="fixed top-0 left-0 w-full h-full overflow-hidden pointer-events-none z-0">
         <div className="absolute top-[10%] left-[60%] w-[40%] h-[40%] rounded-full bg-blue-50 opacity-40 blur-[100px] mix-blend-multiply"></div>
       </div>
-
+      <div className="flex items-center justify-center max-w-full">
       <main className="max-w-3xl mx-auto px-4 py-10 space-y-8 relative z-10 animate-fade-in">
-        <div className="flex items-center justify-between mb-2">
+        <div className="mb-6 text-left">
           <h2 className="text-2xl font-semibold text-text-primary tracking-tight font-heading">Today's Reading Assignment</h2>
-          <span className="text-sm font-medium text-text-muted">{new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric'})}</span>
+          <span className="text-sm font-medium text-text-muted mt-1 block">{new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric'})}</span>
         </div>
 
         {storyLoading ? (
-          <div className="card-elevated p-12 text-center">
-            <div className="animate-pulse flex flex-col items-center gap-4">
+          <div className="card-elevated p-12 text-left">
+            <div className="animate-pulse flex flex-col items-start gap-4">
               <div className="w-12 h-12 border-4 border-outline-variant border-t-primary rounded-full animate-spin"></div>
               <p className="text-text-muted font-medium">Fetching your story…</p>
             </div>
@@ -81,26 +81,22 @@ export default function StudentDashboard() {
         )}
 
         {story && !result && (
-          <div className="space-y-6">
-            <div className="card-elevated p-1 transition-all">
-              <Recorder onRecorded={(blob) => { setAudioBlob(blob); setUploadFile(null); }} />
+          <div className="space-y-6 pb-32" style={{marginTop: '20px'}}>
+            <div className="" style={{marginBottom: '20px'}}>
+              <div className="card-elevated p-1 shadow-2xl border border-outline-variant bg-white/95 backdrop-blur-sm pointer-events-auto">
+                <Recorder onRecorded={(blob) => { setAudioBlob(blob); setUploadFile(null); }} />
+              </div>
             </div>
 
-            <div className="flex items-center justify-center gap-4 my-2 opacity-60">
-              <div className="h-[1px] bg-outline flex-1"></div>
-              <span className="text-xs font-semibold text-text-muted uppercase tracking-wider">or</span>
-              <div className="h-[1px] bg-outline flex-1"></div>
-            </div>
-
-            <div className="card p-6 border-dashed border-2 hover:border-primary/40 transition-colors group cursor-pointer relative overflow-hidden bg-white/50 hover:bg-white/80">
-              <div className="flex flex-col items-center justify-center gap-3 text-center pointer-events-none">
+            <div style={{marginBottom: '20px'}} className="card p-6 border-dashed border-2 hover:border-primary/40 transition-colors group cursor-pointer relative overflow-hidden bg-white/50 hover:bg-white/80 mt-12">
+              <div className="flex flex-row items-center justify-start gap-4 text-left pointer-events-none">
                 <div className="w-10 h-10 rounded-full bg-primary-container text-primary flex items-center justify-center group-hover:scale-110 transition-transform">
                   <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
                     <path fillRule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM6.293 6.707a1 1 0 010-1.414l3-3a1 1 0 011.414 0l3 3a1 1 0 01-1.414 1.414L11 5.414V13a1 1 0 11-2 0V5.414L7.707 6.707a1 1 0 01-1.414 0z" clipRule="evenodd" />
                   </svg>
                 </div>
                 <div>
-                  <h3 className="text-sm font-semibold text-text-primary">Upload existing audio</h3>
+                  <h3 className="text-sm font-semibold text-text-primary">Upload existing audio instead</h3>
                   <p className="text-xs text-text-muted mt-1">.wav, .mp3, .m4a, .webm, .ogg</p>
                 </div>
               </div>
@@ -132,26 +128,31 @@ export default function StudentDashboard() {
             <button
               onClick={handleSubmit}
               disabled={submitting || (!audioBlob && !uploadFile)}
-              className="btn btn-primary w-full py-4 text-base shadow-lg hover:shadow-xl transition-all mt-4"
+              className="btn btn-primary w-full py-4 px-6 text-base shadow-lg hover:shadow-xl transition-all mt-4 text-left flex justify-between items-center"
               id="submit-reading"
             >
-              {submitting ? (
-                <span className="flex items-center gap-2">
-                  <svg className="animate-spin -ml-1 mr-2 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                  </svg>
-                  Processing your reading…
-                </span>
-              ) : 'Submit Reading'}
+              <span className="font-semibold text-left">
+                {submitting ? (
+                  <span className="flex items-center gap-2">
+                    <svg className="animate-spin -ml-1 mr-2 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    Processing your reading…
+                  </span>
+                ) : 'Submit Reading'}
+              </span>
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 opacity-80" viewBox="0 0 20 20" fill="currentColor">
+                <path fillRule="evenodd" d="M10.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L12.586 11H5a1 1 0 110-2h7.586l-2.293-2.293a1 1 0 010-1.414z" clipRule="evenodd" />
+              </svg>
             </button>
           </div>
         )}
 
         {/* Premium Result Card */}
         {result && (
-          <div className="card-elevated p-10 text-center space-y-6 animate-fade-in backdrop-blur-xl bg-white/90 border-t-4 border-t-accent">
-            <div className="w-16 h-16 mx-auto bg-green-100 text-green-600 rounded-full flex items-center justify-center mb-2">
+          <div className="card-elevated p-10 text-left space-y-6 animate-fade-in backdrop-blur-xl bg-white/90 border-t-4 border-t-accent">
+            <div className="w-16 h-16 bg-green-100 text-green-600 rounded-full flex items-center justify-center mb-2">
               <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8" viewBox="0 0 20 20" fill="currentColor">
                 <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
               </svg>
@@ -162,7 +163,7 @@ export default function StudentDashboard() {
               <p className="text-sm text-text-muted mt-1">Here is how you did</p>
             </div>
             
-            <div className="py-6 px-4 bg-surface-dim rounded-2xl border border-outline-variant inline-block min-w-[200px]">
+            <div className="py-6 px-4 bg-surface-dim rounded-2xl border border-outline-variant inline-block min-w-[200px] text-left">
               <div className={`text-6xl font-bold font-heading mb-1 ${scoreColor(result.accuracy_score)}`}>
                 {result.accuracy_score?.toFixed(1)}<span className="text-3xl text-text-muted">%</span>
               </div>
@@ -227,6 +228,7 @@ export default function StudentDashboard() {
           </div>
         )}
       </main>
+      </div>
     </div>
   );
 }

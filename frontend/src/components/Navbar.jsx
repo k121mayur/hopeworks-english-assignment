@@ -14,7 +14,7 @@ export default function Navbar() {
     <nav className="sticky top-0 z-50 glass border-b border-outline-variant px-8 py-3.5 flex items-center justify-between transition-all duration-300">
       <div className="flex items-center gap-3 cursor-pointer group" onClick={() => navigate(user?.role === 'admin' ? '/admin' : '/dashboard')}>
         <div className="w-9 h-9 flex items-center justify-center bg-white rounded-lg shadow-sm border border-outline-variant p-1.5 transition-transform group-hover:scale-105 duration-300">
-          <img src="/silicon-mango-logo.png" alt="Silicon Mango Logo" className="w-full h-full object-contain" />
+          <img src="/Mauli_Logo-removebg-preview.png" alt="Silicon Mango Logo" className="w-full h-full object-contain" />
         </div>
         <h1 className="text-lg font-semibold text-text-primary tracking-tight font-heading">
           English Practice

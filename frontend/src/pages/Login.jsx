@@ -39,9 +39,9 @@ export default function Login() {
       <div className="card-elevated glass px-10 pb-12 pt-24 w-full max-w-lg z-10 animate-fade-in relative mt-20 shadow-2xl flex flex-col justify-center min-h-[480px]">
         
         {/* Floating Logo Atop the Card exactly centered */}
-        <div className="absolute -top-[4.5rem] left-1/2 -translate-x-1/2 w-[9rem] h-[9rem] bg-white rounded-full shadow-2xl border border-outline-variant p-6 flex items-center justify-center transition-all hover:scale-110 hover:-translate-y-2 duration-500 z-20 group">
+        <div className="absolute -top-[2.5rem] left-1/2 -translate-x-1/2 w-[9rem] h-[9rem] bg-white rounded-full shadow-2xl border border-outline-variant p-6 flex items-center justify-center transition-all hover:scale-110 hover:-translate-y-2 duration-500 z-20 group">
           <div className="absolute inset-0 bg-gradient-to-br from-white to-blue-50/80 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-          <img src="/silicon-mango-logo.png" alt="Silicon Mango Logo" className="w-full h-full object-contain drop-shadow-[0_8px_16px_rgba(0,0,0,0.1)] relative z-10 transition-transform duration-700 ease-out group-hover:rotate-12 group-hover:scale-110" />
+          <img src="/Mauli_Logo-removebg-preview.png" alt="Silicon Mango Logo" className="w-full h-full object-contain drop-shadow-[0_8px_16px_rgba(0,0,0,0.1)] relative z-10 transition-transform duration-700 ease-out group-hover:rotate-12 group-hover:scale-110" />
         </div>
 
         <div className="text-center mb-10" style={{marginTop: '30px'}}>
@@ -115,7 +115,7 @@ export default function Login() {
 
       {/* Footer placed at the absolute bottom of the screen */}
       <div className="absolute bottom-8 w-full text-center text-[13px] font-semibold tracking-wide text-text-muted z-10 animate-fade-in" style={{ animationDelay: '0.6s', animationFillMode: 'both' }}>
-        <p>© {new Date().getFullYear()} <a href="https://siliconmango.com" target="_blank" rel="noopener noreferrer">Silicon Mango</a>. All rights reserved.</p>
+        <p>© {new Date().getFullYear()} | Developed by <a href="https://siliconmango.com" target="_blank" rel="noopener noreferrer" style={{color:"#FF8C00"}}>Silicon Mango</a> | All rights reserved.</p>
       </div>
     </div>
   );
