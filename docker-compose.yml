@@ -16,7 +16,12 @@ services:
       retries: 10
 
   backend:
-    build: ./backend
+    build:
+      context: ./backend
+      args:
+        # Override at build time with --build-arg WHISPER_MODEL=medium.en
+        # for a faster/smaller model. Default: large-v3 for best accuracy.
+        WHISPER_MODEL: large-v3
     restart: unless-stopped
     ports:
       - "8000:8000"
@@ -24,6 +29,20 @@ services:
       - .env
     environment:
       DATABASE_URL: postgresql+asyncpg://app:app@db:5432/reading
+      # whisper.cpp ROCm environment
+      WHISPER_LANGUAGE: en
+      WHISPER_THREADS: "8"
+      WHISPER_BEAM_SIZE: "1"
+      # whisper.cpp ROCm uses these to select the GPU device on the host.
+      # GPU 0 = R9700 32 GB (the one we want); GPU 1 = iGPU on 7900X.
+      HIP_VISIBLE_DEVICES: "0"
+      HSA_OVERRIDE_GFX_VERSION: "12.0.1"
+    devices:
+      - /dev/kfd:/dev/kfd
+      - /dev/dri:/dev/dri
+    group_add:
+      - video
+      - "990"
     volumes:
       - audio_data:/app/data/audio
     depends_on:
