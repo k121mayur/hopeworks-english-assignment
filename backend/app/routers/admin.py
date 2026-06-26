@@ -4,10 +4,11 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from uuid import UUID
 from ..auth import hash_password, require_admin
 from ..database import get_db
 from ..models import Class, ClassStudent, User
-from ..schemas import ClassAssign, ClassCreate, ClassOut, StudentCreate, UserOut
+from ..schemas import ClassAssign, ClassCreate, ClassOut, StudentCreate, UserOut, ChangePasswordRequest
 
 router = APIRouter(prefix="/api/admin", tags=["Admin"], dependencies=[Depends(require_admin)])
 
@@ -63,6 +64,24 @@ async def list_students(db: AsyncSession = Depends(get_db)):
         select(User).where(User.role == "student").order_by(User.name)
     )
     return result.scalars().all()
+
+
+@router.put("/students/{student_id}/password", status_code=status.HTTP_200_OK)
+async def change_student_password(
+    student_id: UUID,
+    body: ChangePasswordRequest,
+    db: AsyncSession = Depends(get_db),
+):
+    existing = await db.execute(
+        select(User).where(User.id == student_id, User.role == "student")
+    )
+    student = existing.scalar_one_or_none()
+    if not student:
+        raise HTTPException(status_code=404, detail="Student not found")
+
+    student.password_hash = hash_password(body.new_password)
+    await db.flush()
+    return {"detail": "Password updated successfully"}
 
 
 # ── Assign ───────────────────────────────────────────────────────────────────

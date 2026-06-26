@@ -21,6 +21,10 @@ class TokenResponse(BaseModel):
     role: str
 
 
+class ChangePasswordRequest(BaseModel):
+    new_password: str
+
+
 # ── User / Student ───────────────────────────────────────────────────────────
 
 

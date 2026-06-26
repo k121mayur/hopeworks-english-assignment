@@ -320,12 +320,35 @@ function StudentsTab() {
   const [form, setForm] = useState({ name: '', email: '', password: '' });
   const [assignForm, setAssignForm] = useState({ class_id: '', student_id: '' });
   const [loading, setLoading] = useState(false);
+  const [editingStudent, setEditingStudent] = useState(null);
+  const [newPassword, setNewPassword] = useState('');
 
   const load = () => {
     api.get('/admin/students').then((r) => setStudents(r.data)).catch(() => {});
     api.get('/admin/classes').then((r) => setClasses(r.data)).catch(() => {});
   };
   useEffect(() => { load(); }, []);
+
+  const handlePasswordChange = async (e) => {
+    e.preventDefault();
+    if (!newPassword || newPassword.length < 6) {
+      alert('Password must be at least 6 characters long');
+      return;
+    }
+    setLoading(true);
+    try {
+      await api.put(`/admin/students/${editingStudent.id}/password`, {
+        new_password: newPassword,
+      });
+      alert('Password updated successfully!');
+      setEditingStudent(null);
+      setNewPassword('');
+    } catch (err) {
+      alert(err.response?.data?.detail || 'Failed to update password');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const create = async (e) => {
     e.preventDefault();
@@ -417,6 +440,7 @@ function StudentsTab() {
                 <th className="p-5">Name & Email</th>
                 <th className="p-5">Status</th>
                 <th className="p-5 text-right">Joined Date</th>
+                <th className="p-5 text-right">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-outline-variant">
@@ -433,15 +457,56 @@ function StudentsTab() {
                     </span>
                   </td>
                   <td className="p-5 text-right font-medium text-text-secondary">{new Date(s.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric'})}</td>
+                  <td className="p-5 text-right">
+                    <button 
+                      onClick={() => {
+                        setEditingStudent(s);
+                        setNewPassword('');
+                      }}
+                      className="text-xs font-bold px-3 py-1.5 rounded-lg border border-outline hover:bg-surface-container text-text-secondary hover:text-text-primary transition-all inline-flex items-center gap-1 cursor-pointer"
+                    >
+                      🔑 Change Password
+                    </button>
+                  </td>
                 </tr>
               ))}
               {students.length === 0 && (
-                <tr><td colSpan={3} className="p-12 text-center text-text-muted font-medium">No students registered yet.</td></tr>
+                <tr><td colSpan={4} className="p-12 text-center text-text-muted font-medium">No students registered yet.</td></tr>
               )}
             </tbody>
           </table>
         </div>
       </div>
+
+      {/* Change Password Modal */}
+      {editingStudent && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-primary/40 backdrop-blur-sm animate-fade-in p-4">
+          <div className="card-elevated p-6 bg-white max-w-md w-full space-y-4 shadow-2xl">
+            <h3 className="text-lg font-bold font-heading text-text-primary">Change Password</h3>
+            <p className="text-sm text-text-secondary">
+              Set a new password for <span className="font-semibold">{editingStudent.name}</span> ({editingStudent.email}).
+            </p>
+            <form onSubmit={handlePasswordChange} className="space-y-4">
+              <div className="input-group">
+                <label className="text-xs font-semibold text-text-secondary mb-1 uppercase tracking-wider">New Password</label>
+                <input
+                  className="input"
+                  type="password"
+                  placeholder="Min 6 characters..."
+                  value={newPassword}
+                  onChange={(e) => setNewPassword(e.target.value)}
+                  required
+                  autoFocus
+                />
+              </div>
+              <div className="flex justify-end gap-3 pt-2">
+                <button type="button" className="btn btn-ghost" onClick={() => setEditingStudent(null)}>Cancel</button>
+                <button type="submit" className="btn btn-primary" disabled={loading}>Update Password</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
@@ -454,8 +519,16 @@ function ReportsTab() {
   const [progressData, setProgressData] = useState([]);
   const [difficultWords, setDifficultWords] = useState([]);
 
+  // New state variables for Class Report
+  const [classes, setClasses] = useState([]);
+  const [selectedClass, setSelectedClass] = useState('');
+  const [rangeType, setRangeType] = useState('last_week');
+  const [reportData, setReportData] = useState(null);
+  const [reportLoading, setReportLoading] = useState(false);
+
   useEffect(() => {
     api.get('/admin/students').then((r) => setStudents(r.data)).catch(() => {});
+    api.get('/admin/classes').then((r) => setClasses(r.data)).catch(() => {});
     api.get('/reports/difficult-words').then((r) => setDifficultWords(r.data)).catch(() => {});
   }, []);
 
@@ -464,6 +537,50 @@ function ReportsTab() {
       api.get(`/reports/progress/${selectedStudent}`).then((r) => setProgressData(r.data)).catch(() => {});
     }
   }, [selectedStudent]);
+
+  const generateClassReport = async () => {
+    if (!selectedClass) {
+      alert('Please select a class first');
+      return;
+    }
+    setReportLoading(true);
+    try {
+      const { data } = await api.get('/reports/class-report', {
+        params: {
+          class_id: selectedClass,
+          range_type: rangeType,
+          download: false
+        }
+      });
+      setReportData(data);
+    } catch (err) {
+      alert(err.response?.data?.detail || 'Failed to generate class report');
+    } finally {
+      setReportLoading(false);
+    }
+  };
+
+  const downloadExcel = () => {
+    if (!selectedClass) {
+      alert('Please select a class first');
+      return;
+    }
+    const url = `/reports/class-report?class_id=${selectedClass}&range_type=${rangeType}&download=true`;
+    api.get(url, { responseType: 'blob' })
+      .then((res) => {
+        const blob = new Blob([res.data], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+        const downloadUrl = window.URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = downloadUrl;
+        link.setAttribute('download', `class_${selectedClass}_report_${rangeType}.xlsx`);
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+      })
+      .catch((err) => {
+        alert('Failed to download Excel report');
+      });
+  };
 
   return (
     <div className="space-y-6 w-full px-2 sm:px-0">
@@ -474,6 +591,12 @@ function ReportsTab() {
             className={`px-6 py-2 rounded-lg text-sm font-bold transition-all ${view === 'progress' ? 'bg-primary-container text-primary shadow-sm' : 'text-text-secondary hover:text-text-primary'}`}
           >
             Student Progress
+          </button>
+          <button 
+            onClick={() => setView('class_report')} 
+            className={`px-6 py-2 rounded-lg text-sm font-bold transition-all ${view === 'class_report' ? 'bg-primary-container text-primary shadow-sm' : 'text-text-secondary hover:text-text-primary'}`}
+          >
+            Class Attendance
           </button>
           <button 
             onClick={() => setView('words')} 
@@ -553,6 +676,138 @@ function ReportsTab() {
                 </p>
                 <p className="text-text-muted text-sm mt-1">
                   {selectedStudent ? 'This student has not completed any reading assessments.' : 'Please select a student from the dropdown to view their progress.'}
+                </p>
+              </div>
+            )}
+          </div>
+        )}
+
+        {view === 'class_report' && (
+          <div className="card-elevated p-5 sm:p-8 bg-white min-h-[400px] max-w-5xl mx-auto w-full m-0">
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
+              <div>
+                <h3 className="text-xl font-bold font-heading text-text-primary">Class Attendance & Performance</h3>
+                <p className="text-sm text-text-muted">Generate attendance records and track reading assignments.</p>
+              </div>
+              <div className="flex flex-wrap items-center gap-3">
+                <select
+                  className="input max-w-[200px] shadow-sm font-medium border-outline-variant"
+                  value={selectedClass}
+                  onChange={(e) => setSelectedClass(e.target.value)}
+                >
+                  <option value="">Select a class…</option>
+                  {classes.map((c) => <option key={c.id} value={c.id}>{c.class_name}</option>)}
+                </select>
+
+                <select
+                  className="input max-w-[160px] shadow-sm font-medium border-outline-variant"
+                  value={rangeType}
+                  onChange={(e) => setRangeType(e.target.value)}
+                >
+                  <option value="last_week">Last Week</option>
+                  <option value="last_month">Last Month</option>
+                </select>
+
+                <button 
+                  onClick={generateClassReport} 
+                  className="btn btn-primary shadow-sm cursor-pointer"
+                  disabled={reportLoading}
+                >
+                  Generate
+                </button>
+
+                {reportData && (
+                  <button 
+                    onClick={downloadExcel} 
+                    className="btn btn-success shadow-sm cursor-pointer"
+                  >
+                    📥 Excel
+                  </button>
+                )}
+              </div>
+            </div>
+
+            {reportLoading ? (
+              <div className="h-[300px] flex flex-col items-center justify-center">
+                <svg className="animate-spin h-10 w-10 text-primary mb-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                <p className="text-text-secondary font-medium">Analyzing records...</p>
+              </div>
+            ) : reportData ? (
+              <div className="space-y-6">
+                {/* Summary Metrics */}
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                  <div className="border border-outline rounded-2xl p-5 bg-surface-dim/40 text-center">
+                    <div className="text-xs font-semibold text-text-secondary uppercase tracking-wider mb-1">Attendance Rate</div>
+                    <div className="text-3xl font-extrabold text-primary">{reportData.attendance_rate}%</div>
+                  </div>
+                  <div className="border border-outline rounded-2xl p-5 bg-surface-dim/40 text-center">
+                    <div className="text-xs font-semibold text-text-secondary uppercase tracking-wider mb-1">Total Students</div>
+                    <div className="text-3xl font-extrabold text-primary">{reportData.total_students}</div>
+                    <div className="text-xs text-text-muted mt-1">active in roster</div>
+                  </div>
+                  <div className="border border-outline rounded-2xl p-5 bg-surface-dim/40 text-center">
+                    <div className="text-xs font-semibold text-text-secondary uppercase tracking-wider mb-1">Assigned Stories</div>
+                    <div className="text-3xl font-extrabold text-primary">{reportData.total_stories}</div>
+                    <div className="text-xs text-text-muted mt-1">in date range</div>
+                  </div>
+                </div>
+
+                {/* Table */}
+                <div className="overflow-hidden border border-outline rounded-2xl bg-white">
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-sm">
+                      <thead>
+                        <tr className="text-left text-xs font-semibold text-text-muted uppercase tracking-wider bg-surface-dim/50 border-b border-outline">
+                          <th className="p-4">Student</th>
+                          <th className="p-4">Assigned Date</th>
+                          <th className="p-4">Story Title</th>
+                          <th className="p-4 text-center">Attempts</th>
+                          <th className="p-4 text-right">Best Score</th>
+                          <th className="p-4 text-center">Status</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-outline-variant">
+                        {reportData.records.map((r, idx) => (
+                          <tr key={idx} className="hover:bg-slate-50 transition-colors">
+                            <td className="p-4">
+                              <div className="font-bold text-text-primary">{r.student_name}</div>
+                              <div className="text-xs text-text-muted">{r.student_email}</div>
+                            </td>
+                            <td className="p-4 text-text-secondary font-medium">{r.date}</td>
+                            <td className="p-4 text-text-primary font-medium">{r.story_title}</td>
+                            <td className="p-4 text-center text-text-secondary font-semibold">{r.attempts}</td>
+                            <td className="p-4 text-right text-text-secondary font-bold">{r.max_score}%</td>
+                            <td className="p-4 text-center">
+                              <span className={`inline-flex items-center gap-1 text-xs font-bold px-2.5 py-1 rounded-full border ${r.status === 'Present' ? 'bg-success-container/50 text-success border-success/20' : 'bg-danger-container/50 text-danger border-danger/20'}`}>
+                                <span className={`w-1.5 h-1.5 rounded-full ${r.status === 'Present' ? 'bg-success' : 'bg-danger'}`}></span>
+                                {r.status}
+                              </span>
+                            </td>
+                          </tr>
+                        ))}
+                        {reportData.records.length === 0 && (
+                          <tr>
+                            <td colSpan={6} className="p-12 text-center text-text-muted font-medium">
+                              No assessment records found for this period.
+                            </td>
+                          </tr>
+                        )}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <div className="h-[300px] flex flex-col items-center justify-center border-2 border-dashed border-outline-variant rounded-2xl bg-surface-dim">
+                <div className="w-16 h-16 bg-white rounded-full flex items-center justify-center shadow-sm mb-4">
+                  <span className="text-2xl text-text-muted">📊</span>
+                </div>
+                <p className="text-text-primary font-semibold text-lg">No Report Generated</p>
+                <p className="text-text-muted text-sm mt-1">
+                  Select a class and date range from the dropdowns above to compile the report.
                 </p>
               </div>
             )}
