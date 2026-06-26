@@ -114,6 +114,7 @@ class WordErrorOut(BaseModel):
 
 class SubmissionDetail(SubmissionOut):
     word_errors: List[WordErrorOut] = []
+    story: Optional[StoryOut] = None
 
 
 # ── Reports ───────────────────────────────────────────────────────────────────
