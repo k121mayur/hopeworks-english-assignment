@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { Capacitor } from '@capacitor/core';
 import api from '../services/api';
 import Navbar from '../components/Navbar';
 import {
@@ -9,7 +10,7 @@ import {
 /* ──────── Premium Metric card ──────── */
 function MetricCard({ label, value, iconTemplate, colorClass = "bg-white", headerIconBg = "", children }) {
   return (
-    <div className={`card-elevated p-6 flex flex-col justify-between transition-transform scale-95 origin-center hover:scale-100 hover:shadow-xl duration-500 rounded-[28px] ${colorClass} min-h-[240px] relative overflow-hidden group border-2 border-white/40 shadow-sm`}>
+    <div className={`card-elevated p-6 flex flex-col justify-between transition-all hover:-translate-y-1 hover:shadow-lg duration-300 rounded-[28px] ${colorClass} min-h-[240px] relative overflow-hidden group border-2 border-white/40 shadow-sm`}>
       <div className="flex items-start gap-4 z-10">
         <div className={`w-14 h-14 rounded-2xl flex items-center justify-center text-3xl shadow-md ${headerIconBg}`}>
           {iconTemplate}
@@ -35,6 +36,21 @@ const TABS = [
   { key: 'students', label: 'Students', icon: '👩‍🎓' },
   { key: 'reports', label: 'Reports', icon: '📈' },
 ];
+
+/* ──────── Safe Date Formatter ──────── */
+const formatDateSafe = (dateStr) => {
+  if (!dateStr) return '—';
+  try {
+    const s = dateStr.includes(' ') ? dateStr.replace(' ', 'T') : dateStr;
+    const d = new Date(s);
+    return isNaN(d.getTime()) 
+      ? '—' 
+      : d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric'});
+  } catch (err) {
+    console.error('Error formatting date:', err);
+    return '—';
+  }
+};
 
 export default function AdminDashboard() {
   const [tab, setTab] = useState('dashboard');
@@ -289,17 +305,17 @@ function ClassesTab() {
           <table className="w-full text-sm">
             <thead>
               <tr className="text-left text-xs font-semibold text-text-muted uppercase tracking-wider bg-surface-dim/50">
-                <th className="p-5">ID</th>
-                <th className="p-5">Class Name</th>
-                <th className="p-5">Created Date</th>
+                <th className="px-4 py-3.5 sm:p-5">ID</th>
+                <th className="px-4 py-3.5 sm:p-5">Class Name</th>
+                <th className="px-4 py-3.5 sm:p-5">Created Date</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-outline-variant">
               {classes.map((c) => (
                 <tr key={c.id} className="hover:bg-slate-50 transition-colors">
-                  <td className="p-5 text-text-muted font-mono text-xs">#{c.id}</td>
-                  <td className="p-5 font-bold text-text-primary">{c.class_name}</td>
-                  <td className="p-5 font-medium text-text-secondary">{new Date(c.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric'})}</td>
+                  <td className="px-4 py-3.5 sm:p-5 text-text-muted font-mono text-xs">#{c.id}</td>
+                  <td className="px-4 py-3.5 sm:p-5 font-bold text-text-primary">{c.class_name}</td>
+                  <td className="px-4 py-3.5 sm:p-5 font-medium text-text-secondary">{formatDateSafe(c.created_at)}</td>
                 </tr>
               ))}
               {classes.length === 0 && (
@@ -437,35 +453,39 @@ function StudentsTab() {
           <table className="w-full text-sm">
             <thead>
               <tr className="text-left text-xs font-semibold text-text-muted uppercase tracking-wider bg-surface-dim/50">
-                <th className="p-5">Name & Email</th>
-                <th className="p-5">Status</th>
-                <th className="p-5 text-right">Joined Date</th>
-                <th className="p-5 text-right">Actions</th>
+                <th className="px-4 py-3 sm:p-5">Name & Email</th>
+                <th className="px-4 py-3 sm:p-5">Class</th>
+                <th className="px-4 py-3 sm:p-5">Status</th>
+                <th className="px-4 py-3 sm:p-5 text-right">Joined Date</th>
+                <th className="px-4 py-3 sm:p-5 text-right">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-outline-variant">
               {students.map((s) => (
                 <tr key={s.id} className="hover:bg-slate-50 transition-colors">
-                  <td className="p-5">
+                  <td className="px-4 py-3 sm:p-5">
                     <div className="font-bold text-text-primary">{s.name}</div>
                     <div className="text-xs text-text-muted mt-0.5">{s.email}</div>
                   </td>
-                  <td className="p-5">
+                  <td className="px-4 py-3 sm:p-5 font-semibold text-text-secondary">
+                    {s.class_names && s.class_names.length > 0 ? s.class_names.join(', ') : '—'}
+                  </td>
+                  <td className="px-4 py-3 sm:p-5">
                     <span className={`inline-flex items-center gap-1.5 text-xs font-bold px-2.5 py-1 rounded-full border ${s.is_active ? 'bg-success-container/50 text-success border-success/20' : 'bg-danger-container/50 text-danger border-danger/20'}`}>
                       <span className={`w-1.5 h-1.5 rounded-full ${s.is_active ? 'bg-success' : 'bg-danger'}`}></span>
                       {s.is_active ? 'Active' : 'Inactive'}
                     </span>
                   </td>
-                  <td className="p-5 text-right font-medium text-text-secondary">{new Date(s.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric'})}</td>
-                  <td className="p-5 text-right">
+                  <td className="px-4 py-3 sm:p-5 text-right font-medium text-text-secondary">{formatDateSafe(s.created_at)}</td>
+                  <td className="px-4 py-3 sm:p-5 text-right">
                     <button 
                       onClick={() => {
                         setEditingStudent(s);
                         setNewPassword('');
                       }}
-                      className="text-xs font-bold px-3 py-1.5 rounded-lg border border-outline hover:bg-surface-container text-text-secondary hover:text-text-primary transition-all inline-flex items-center gap-1 cursor-pointer"
+                      className="text-xs font-bold px-2.5 py-1.5 rounded-lg border border-outline hover:bg-surface-container text-text-secondary hover:text-text-primary transition-all inline-flex items-center gap-1 cursor-pointer"
                     >
-                      🔑 Change Password
+                      🔑 Reset Password
                     </button>
                   </td>
                 </tr>
@@ -525,12 +545,40 @@ function ReportsTab() {
   const [rangeType, setRangeType] = useState('last_week');
   const [reportData, setReportData] = useState(null);
   const [reportLoading, setReportLoading] = useState(false);
+  const [progressClassFilter, setProgressClassFilter] = useState('');
 
+  const blobToBase64 = (blob) => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        const base64data = reader.result.split(',')[1];
+        resolve(base64data);
+      };
+      reader.onerror = reject;
+      reader.readAsDataURL(blob);
+    });
+  };
+
+  // Initial load: classes and difficult words
   useEffect(() => {
-    api.get('/admin/students').then((r) => setStudents(r.data)).catch(() => {});
     api.get('/admin/classes').then((r) => setClasses(r.data)).catch(() => {});
     api.get('/reports/difficult-words').then((r) => setDifficultWords(r.data)).catch(() => {});
   }, []);
+
+  // Reload students when class filter is changed
+  useEffect(() => {
+    const params = progressClassFilter ? { class_id: progressClassFilter } : {};
+    api.get('/admin/students', { params })
+      .then((r) => {
+        setStudents(r.data);
+        // Reset selected student if they are no longer in the loaded list
+        if (selectedStudent && !r.data.some((s) => s.id === selectedStudent)) {
+          setSelectedStudent('');
+          setProgressData([]);
+        }
+      })
+      .catch(() => {});
+  }, [progressClassFilter]);
 
   useEffect(() => {
     if (selectedStudent) {
@@ -567,15 +615,42 @@ function ReportsTab() {
     }
     const url = `/reports/class-report?class_id=${selectedClass}&range_type=${rangeType}&download=true`;
     api.get(url, { responseType: 'blob' })
-      .then((res) => {
+      .then(async (res) => {
         const blob = new Blob([res.data], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
-        const downloadUrl = window.URL.createObjectURL(blob);
-        const link = document.createElement('a');
-        link.href = downloadUrl;
-        link.setAttribute('download', `class_${selectedClass}_report_${rangeType}.xlsx`);
-        document.body.appendChild(link);
-        link.click();
-        link.remove();
+        const fileName = `class_${selectedClass}_report_${rangeType}.xlsx`;
+        
+        if (Capacitor.isNativePlatform()) {
+          try {
+            // Lazy load Capacitor Filesystem and Share
+            const { Filesystem, Directory } = await import('@capacitor/filesystem');
+            const { Share } = await import('@capacitor/share');
+            
+            const base64 = await blobToBase64(blob);
+            const writeResult = await Filesystem.writeFile({
+              path: fileName,
+              data: base64,
+              directory: Directory.Cache
+            });
+            
+            await Share.share({
+              title: 'Class Attendance Report',
+              url: writeResult.uri,
+              dialogTitle: 'Open or Share Report'
+            });
+          } catch (err) {
+            console.error('Capacitor native download error:', err);
+            alert('Failed to save Excel report on mobile device');
+          }
+        } else {
+          // Web fallback
+          const downloadUrl = window.URL.createObjectURL(blob);
+          const link = document.createElement('a');
+          link.href = downloadUrl;
+          link.setAttribute('download', fileName);
+          document.body.appendChild(link);
+          link.click();
+          link.remove();
+        }
       })
       .catch((err) => {
         alert('Failed to download Excel report');
@@ -584,23 +659,23 @@ function ReportsTab() {
 
   return (
     <div className="space-y-6 w-full px-2 sm:px-0">
-      <div className="flex justify-center mb-6">
-        <div className="flex gap-2 p-1.5 bg-white border border-outline-variant rounded-xl inline-flex shadow-sm mt-3">
+      <div className="flex justify-center mb-6 w-full px-2">
+        <div className="flex flex-wrap sm:flex-nowrap gap-1.5 sm:gap-2 p-1.5 bg-white border border-outline-variant rounded-xl shadow-sm mt-3 w-full max-w-lg sm:w-auto justify-center">
           <button 
             onClick={() => setView('progress')} 
-            className={`px-6 py-2 rounded-lg text-sm font-bold transition-all ${view === 'progress' ? 'bg-primary-container text-primary shadow-sm' : 'text-text-secondary hover:text-text-primary'}`}
+            className={`flex-1 sm:flex-none px-4 sm:px-6 py-2 rounded-lg text-xs sm:text-sm font-bold transition-all ${view === 'progress' ? 'bg-primary-container text-primary shadow-sm' : 'text-text-secondary hover:text-text-primary'}`}
           >
             Student Progress
           </button>
           <button 
             onClick={() => setView('class_report')} 
-            className={`px-6 py-2 rounded-lg text-sm font-bold transition-all ${view === 'class_report' ? 'bg-primary-container text-primary shadow-sm' : 'text-text-secondary hover:text-text-primary'}`}
+            className={`flex-1 sm:flex-none px-4 sm:px-6 py-2 rounded-lg text-xs sm:text-sm font-bold transition-all ${view === 'class_report' ? 'bg-primary-container text-primary shadow-sm' : 'text-text-secondary hover:text-text-primary'}`}
           >
             Class Attendance
           </button>
           <button 
             onClick={() => setView('words')} 
-            className={`px-6 py-2 rounded-lg text-sm font-bold transition-all ${view === 'words' ? 'bg-primary-container text-primary shadow-sm' : 'text-text-secondary hover:text-text-primary'}`}
+            className={`flex-1 sm:flex-none px-4 sm:px-6 py-2 rounded-lg text-xs sm:text-sm font-bold transition-all ${view === 'words' ? 'bg-primary-container text-primary shadow-sm' : 'text-text-secondary hover:text-text-primary'}`}
           >
             Difficult Words
           </button>
@@ -615,14 +690,25 @@ function ReportsTab() {
                 <h3 className="text-xl font-bold font-heading text-text-primary">Accuracy Tracking</h3>
                 <p className="text-sm text-text-muted">Monitor individual student reading improvement over time.</p>
               </div>
-              <select
-                className="input max-w-[240px] shadow-sm font-medium border-outline-variant"
-                value={selectedStudent}
-                onChange={(e) => setSelectedStudent(e.target.value)}
-              >
-                <option value="">Select a student…</option>
-                {students.map((s) => <option key={s.id} value={s.id}>{s.name}</option>)}
-              </select>
+              <div className="flex flex-col sm:flex-row gap-3 w-full md:w-auto">
+                <select
+                  className="input w-full sm:w-[180px] shadow-sm font-medium border-outline-variant"
+                  value={progressClassFilter}
+                  onChange={(e) => setProgressClassFilter(e.target.value)}
+                >
+                  <option value="">All Classes</option>
+                  {classes.map((c) => <option key={c.id} value={c.id}>{c.class_name}</option>)}
+                </select>
+
+                <select
+                  className="input w-full sm:w-[200px] shadow-sm font-medium border-outline-variant"
+                  value={selectedStudent}
+                  onChange={(e) => setSelectedStudent(e.target.value)}
+                >
+                  <option value="">Select a student…</option>
+                  {students.map((s) => <option key={s.id} value={s.id}>{s.name}</option>)}
+                </select>
+              </div>
             </div>
 
             {progressData.length > 0 ? (
@@ -689,9 +775,9 @@ function ReportsTab() {
                 <h3 className="text-xl font-bold font-heading text-text-primary">Class Attendance & Performance</h3>
                 <p className="text-sm text-text-muted">Generate attendance records and track reading assignments.</p>
               </div>
-              <div className="flex flex-wrap items-center gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:flex md:items-center gap-3 w-full md:w-auto">
                 <select
-                  className="input max-w-[200px] shadow-sm font-medium border-outline-variant"
+                  className="input w-full md:w-[180px] shadow-sm font-medium border-outline-variant"
                   value={selectedClass}
                   onChange={(e) => setSelectedClass(e.target.value)}
                 >
@@ -700,7 +786,7 @@ function ReportsTab() {
                 </select>
 
                 <select
-                  className="input max-w-[160px] shadow-sm font-medium border-outline-variant"
+                  className="input w-full md:w-[140px] shadow-sm font-medium border-outline-variant"
                   value={rangeType}
                   onChange={(e) => setRangeType(e.target.value)}
                 >
@@ -710,7 +796,7 @@ function ReportsTab() {
 
                 <button 
                   onClick={generateClassReport} 
-                  className="btn btn-primary shadow-sm cursor-pointer"
+                  className="btn btn-primary w-full md:w-auto shadow-sm cursor-pointer"
                   disabled={reportLoading}
                 >
                   Generate
@@ -719,7 +805,7 @@ function ReportsTab() {
                 {reportData && (
                   <button 
                     onClick={downloadExcel} 
-                    className="btn btn-success shadow-sm cursor-pointer"
+                    className="btn btn-success w-full md:w-auto shadow-sm cursor-pointer"
                   >
                     📥 Excel
                   </button>

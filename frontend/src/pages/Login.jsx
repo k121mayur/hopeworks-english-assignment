@@ -7,6 +7,8 @@ export default function Login() {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [showSettings, setShowSettings] = useState(false);
+  const [apiUrl, setApiUrl] = useState(localStorage.getItem('api_url') || '');
   const { login } = useAuth();
   const navigate = useNavigate();
 
@@ -26,6 +28,17 @@ export default function Login() {
     }
   };
 
+  const saveSettings = (e) => {
+    e.preventDefault();
+    const formattedUrl = apiUrl.trim();
+    if (formattedUrl) {
+      localStorage.setItem('api_url', formattedUrl);
+    } else {
+      localStorage.removeItem('api_url');
+    }
+    setShowSettings(false);
+  };
+
   return (
     <div className="min-h-[100dvh] flex flex-col items-center justify-center relative overflow-hidden bg-surface-dim">
       {/* Premium Animated Background Elements */}
@@ -38,6 +51,16 @@ export default function Login() {
       {/* Main Login Card */}
       <div className="card-elevated glass px-6 sm:px-10 pb-10 sm:pb-12 pt-20 sm:pt-24 w-full max-w-lg z-10 animate-fade-in relative mt-16 sm:mt-20 shadow-2xl flex flex-col justify-center min-h-[400px] sm:min-h-[480px]">
         
+        {/* Server Settings Icon */}
+        <button
+          type="button"
+          onClick={() => setShowSettings(true)}
+          className="absolute top-4 right-4 p-2 text-text-muted hover:text-text-primary rounded-full hover:bg-slate-100 transition-colors z-20 cursor-pointer text-lg"
+          title="Server Configuration"
+        >
+          ⚙️
+        </button>
+
         {/* Floating Logo Atop the Card exactly centered */}
         <div className="absolute -top-12 sm:-top-[4.5rem] left-1/2 -translate-x-1/2 w-24 h-24 sm:w-[9rem] sm:h-[9rem] bg-white rounded-full shadow-2xl border border-outline-variant p-4 sm:p-6 flex items-center justify-center transition-all hover:scale-110 hover:-translate-y-2 duration-500 z-20 group">
           <div className="absolute inset-0 bg-gradient-to-br from-white to-blue-50/80 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
@@ -116,6 +139,37 @@ export default function Login() {
       <div className="mt-auto pt-8 pb-4 w-full text-center text-xs sm:text-[13px] font-semibold tracking-wide text-text-muted z-10 animate-fade-in" style={{ animationDelay: '0.6s', animationFillMode: 'both' }}>
         <p>© {new Date().getFullYear()} | Developed by <a href="https://siliconmango.com" target="_blank" rel="noopener noreferrer" className="text-orange-500 hover:text-orange-600 transition-colors">Silicon Mango</a> | All rights reserved.</p>
       </div>
+
+      {/* Server Settings Modal */}
+      {showSettings && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm animate-fade-in p-4">
+          <div className="card-elevated p-6 bg-white max-w-md w-full space-y-4 shadow-2xl">
+            <h3 className="text-lg font-bold font-heading text-text-primary">Server Configuration</h3>
+            <p className="text-sm text-text-secondary">
+              Configure the API Server URL (useful for Android). Default is relative path <code className="bg-surface-dim px-1.5 py-0.5 rounded font-mono text-xs">/api</code>.
+            </p>
+            <form onSubmit={saveSettings} className="space-y-4">
+              <div className="input-group">
+                <label className="text-xs font-semibold text-text-secondary mb-1 uppercase tracking-wider">Server URL</label>
+                <input
+                  className="input"
+                  type="url"
+                  placeholder="e.g. http://192.168.1.100:8000"
+                  value={apiUrl}
+                  onChange={(e) => setApiUrl(e.target.value)}
+                />
+              </div>
+              <p className="text-[11px] text-text-muted">
+                Leave empty to use the default server hosting this frontend application.
+              </p>
+              <div className="flex justify-end gap-3 pt-2">
+                <button type="button" className="btn btn-ghost" onClick={() => setShowSettings(false)}>Cancel</button>
+                <button type="submit" className="btn btn-primary">Save Settings</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

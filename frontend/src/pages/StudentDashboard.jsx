@@ -3,6 +3,7 @@ import api from '../services/api';
 import Navbar from '../components/Navbar';
 import StoryCard from '../components/StoryCard';
 import Recorder from '../components/Recorder';
+import { speak, stop } from '../services/tts';
 
 export default function StudentDashboard() {
   const [story, setStory] = useState(null);
@@ -38,9 +39,9 @@ export default function StudentDashboard() {
 
     fetchHistory();
 
-    // Cleanup any running browser speech synthesis
+    // Cleanup any running speech synthesis
     return () => {
-      window.speechSynthesis.cancel();
+      stop();
     };
   }, []);
 
@@ -81,11 +82,7 @@ export default function StudentDashboard() {
   };
 
   const speakWord = (word) => {
-    window.speechSynthesis.cancel();
-    const utterance = new SpeechSynthesisUtterance(word);
-    utterance.lang = 'en-US';
-    utterance.rate = 0.75; // Slower rate so students can clearly hear individual word pronunciations
-    window.speechSynthesis.speak(utterance);
+    speak(word, 0.75);
   };
 
   return (
@@ -109,7 +106,7 @@ export default function StudentDashboard() {
           <button
             onClick={() => {
               setActiveTab('today');
-              window.speechSynthesis.cancel();
+              stop();
             }}
             className={`flex-1 py-3 text-center text-sm font-bold tracking-wide border-b-2 transition-all cursor-pointer select-none ${
               activeTab === 'today'
@@ -122,7 +119,7 @@ export default function StudentDashboard() {
           <button
             onClick={() => {
               setActiveTab('history');
-              window.speechSynthesis.cancel();
+              stop();
             }}
             className={`flex-1 py-3 text-center text-sm font-bold tracking-wide border-b-2 transition-all cursor-pointer select-none ${
               activeTab === 'history'
@@ -130,7 +127,7 @@ export default function StudentDashboard() {
                 : 'border-transparent text-text-muted hover:text-text-primary'
             }`}
           >
-            📜 My History ({history.length})
+            📜 My History ({history?.length || 0})
           </button>
         </div>
 
@@ -357,15 +354,28 @@ export default function StudentDashboard() {
               </div>
             ) : (
               <div className="space-y-3 w-full">
-                {history.map((sub) => {
+                {Array.isArray(history) && history.map((sub) => {
                   const isExpanded = expandedSubId === sub.id;
-                  const formattedDate = new Date(sub.created_at).toLocaleDateString('en-US', {
-                    month: 'short',
-                    day: 'numeric',
-                    year: 'numeric',
-                    hour: '2-digit',
-                    minute: '2-digit'
-                  });
+                  let formattedDate = 'Unknown Date';
+                  if (sub.created_at) {
+                    try {
+                      const dateStr = sub.created_at.includes(' ') 
+                        ? sub.created_at.replace(' ', 'T') 
+                        : sub.created_at;
+                      const dateObj = new Date(dateStr);
+                      if (!isNaN(dateObj.getTime())) {
+                        formattedDate = dateObj.toLocaleDateString('en-US', {
+                          month: 'short',
+                          day: 'numeric',
+                          year: 'numeric',
+                          hour: '2-digit',
+                          minute: '2-digit'
+                        });
+                      }
+                    } catch (dateErr) {
+                      console.error('Error formatting date:', dateErr);
+                    }
+                  }
                   return (
                     <div
                       key={sub.id}
@@ -375,7 +385,7 @@ export default function StudentDashboard() {
                       <button
                         onClick={() => {
                           setExpandedSubId(isExpanded ? null : sub.id);
-                          window.speechSynthesis.cancel();
+                          stop();
                         }}
                         className="w-full py-4 px-5 flex items-center justify-between text-left hover:bg-slate-50 transition-colors cursor-pointer select-none"
                       >
@@ -387,7 +397,7 @@ export default function StudentDashboard() {
                         </div>
                         <div className="flex items-center gap-3">
                           <span className={`text-xs sm:text-sm font-extrabold px-2.5 py-1 rounded-lg bg-surface-dim border border-outline-variant ${scoreColor(sub.accuracy_score)}`}>
-                            {sub.accuracy_score?.toFixed(1)}%
+                            {typeof sub.accuracy_score === 'number' ? sub.accuracy_score.toFixed(1) : '0.0'}%
                           </span>
                           <svg
                             xmlns="http://www.w3.org/2000/svg"
@@ -410,11 +420,7 @@ export default function StudentDashboard() {
                                 <h5 className="text-[11px] font-bold text-text-secondary uppercase tracking-wider">Original Story</h5>
                                 <button
                                   onClick={() => {
-                                    window.speechSynthesis.cancel();
-                                    const utterance = new SpeechSynthesisUtterance(sub.story.story_text);
-                                    utterance.lang = 'en-US';
-                                    utterance.rate = 0.85;
-                                    window.speechSynthesis.speak(utterance);
+                                    speak(sub.story.story_text, 0.85);
                                   }}
                                   className="text-xs text-accent hover:text-accent-hover font-bold flex items-center gap-1 cursor-pointer"
                                 >

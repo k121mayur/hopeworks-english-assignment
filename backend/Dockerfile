@@ -1,4 +1,9 @@
-FROM ubuntu:24.04
+# Global build arguments
+ARG WHISPER_MODEL=large-v3
+
+# ---- Base Image ----
+# Includes system packages and ROCm repo. This is shared between builder and runner.
+FROM ubuntu:24.04 AS base
 
 # Avoid interactive tz / apt prompts
 ENV DEBIAN_FRONTEND=noninteractive
@@ -14,11 +19,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
         > /etc/apt/sources.list.d/rocm.list \
     && rm -rf /var/lib/apt/lists/*
 
-# ---- System deps ----
-# - ffmpeg: audio decode fallback
-# - build tools, cmake, git: to build whisper.cpp
-# - rocm-dev / hipblas-dev / rocblas-dev: ROCm HIP stack
-# - libcurl4-openssl-dev: needed by whisper.cpp's downloader
+# ---- System runtime and build deps ----
 RUN apt-get update && apt-get install -y --no-install-recommends \
         ffmpeg \
         git \
@@ -35,21 +36,18 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
         hipcc/7.2.4 \
         rocm-cmake/7.2.4 \
         rocm-utils/7.2.4 \
-    && rm -rf /var/lib/apt/lists/*
-
-# ---- Python runtime ----
-# FastAPI still needs Python; use the deadsnakes PPA on Ubuntu 24.04.
-RUN apt-get update && apt-get install -y --no-install-recommends software-properties-common \
+        software-properties-common \
     && add-apt-repository -y ppa:deadsnakes/ppa \
     && apt-get install -y --no-install-recommends python3.11 python3.11-venv python3.11-dev \
     && rm -rf /var/lib/apt/lists/*
 
+# ---- Stage 2: Whisper.cpp Builder ----
+# Since this stage does not COPY any files from the build context, it will be 100% cached
+# and never run again when local files change.
+FROM base AS whisper-builder
+
 WORKDIR /app
 
-# ---- uv for fast Python deps ----
-COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /bin/
-
-# ---- whisper.cpp (built with HIP for AMD ROCm) ----
 ARG WHISPER_CPP_REPO=https://github.com/ggerganov/whisper.cpp.git
 ARG WHISPER_CPP_REF=master
 RUN git clone --depth 1 --branch ${WHISPER_CPP_REF} ${WHISPER_CPP_REPO} /app/whisper.cpp \
@@ -64,14 +62,26 @@ RUN git clone --depth 1 --branch ${WHISPER_CPP_REF} ${WHISPER_CPP_REPO} /app/whi
     && cmake --build build --config Release -- -j"$(nproc)" \
     && ls -la build/bin/whisper-cli
 
-# ---- Whisper model ----
-# Default to large-v3 for highest accuracy (host has 32 GB VRAM). Override with
-# WHISPER_MODEL=... build arg if you want medium.en / small.en for speed.
-ARG WHISPER_MODEL=large-v3
-ENV WHISPER_MODEL_PATH=/app/whisper.cpp/models/ggml-${WHISPER_MODEL}.bin
-# Use the official model downloader (handles sha256 + retries).
+# Download Whisper model inside builder stage
+ARG WHISPER_MODEL
 RUN bash /app/whisper.cpp/models/download-ggml-model.sh ${WHISPER_MODEL} /app/whisper.cpp/models \
     && ls -lh /app/whisper.cpp/models/ggml-${WHISPER_MODEL}.bin
+
+# ---- Stage 3: Final Runner Stage ----
+FROM base AS runner
+
+WORKDIR /app
+
+# Copy the built whisper-cli binary and the downloaded model from whisper-builder
+COPY --from=whisper-builder /app/whisper.cpp/build/bin/whisper-cli /app/whisper.cpp/build/bin/whisper-cli
+COPY --from=whisper-builder /app/whisper.cpp/models /app/whisper.cpp/models
+
+# Set whisper.cpp model environment variables
+ARG WHISPER_MODEL
+ENV WHISPER_MODEL_PATH=/app/whisper.cpp/models/ggml-${WHISPER_MODEL}.bin
+
+# ---- uv for fast Python deps ----
+COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /bin/
 
 # ---- Python app deps ----
 COPY pyproject.toml ./

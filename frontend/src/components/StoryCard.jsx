@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { speak, stop } from '../services/tts';
 
 export default function StoryCard({ story }) {
   const [isPlaying, setIsPlaying] = useState(false);
@@ -6,7 +7,7 @@ export default function StoryCard({ story }) {
   useEffect(() => {
     // Stop speaking if story changes or component unmounts
     return () => {
-      window.speechSynthesis.cancel();
+      stop();
     };
   }, [story]);
 
@@ -24,16 +25,10 @@ export default function StoryCard({ story }) {
 
   const toggleSpeech = () => {
     if (isPlaying) {
-      window.speechSynthesis.cancel();
+      stop();
       setIsPlaying(false);
     } else {
-      window.speechSynthesis.cancel();
-      const utterance = new SpeechSynthesisUtterance(story.story_text);
-      utterance.lang = 'en-US';
-      utterance.rate = 0.85; // Slightly slower for student comprehension
-      utterance.onend = () => setIsPlaying(false);
-      utterance.onerror = () => setIsPlaying(false);
-      window.speechSynthesis.speak(utterance);
+      speak(story.story_text, 0.85, () => setIsPlaying(false));
       setIsPlaying(true);
     }
   };

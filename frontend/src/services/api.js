@@ -1,11 +1,20 @@
 import axios from 'axios';
 
+const getBaseURL = () => {
+    const savedUrl = localStorage.getItem('api_url');
+    if (savedUrl) return savedUrl;
+    return import.meta.env.VITE_API_URL || '/api';
+};
+
 const api = axios.create({
-    baseURL: '/api',
+    get baseURL() {
+        return getBaseURL();
+    }
 });
 
-// Attach JWT token to every request
+// Attach JWT token and dynamic base URL to every request
 api.interceptors.request.use((config) => {
+    config.baseURL = getBaseURL();
     const token = localStorage.getItem('token');
     if (token) {
         config.headers.Authorization = `Bearer ${token}`;
