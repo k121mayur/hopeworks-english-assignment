@@ -21,6 +21,10 @@ class TokenResponse(BaseModel):
     role: str
 
 
+class ChangePasswordRequest(BaseModel):
+    new_password: str
+
+
 # ── User / Student ───────────────────────────────────────────────────────────
 
 
@@ -37,6 +41,7 @@ class UserOut(BaseModel):
     role: str
     is_active: bool
     created_at: datetime
+    class_names: List[str] = []
 
     class Config:
         from_attributes = True
@@ -110,6 +115,7 @@ class WordErrorOut(BaseModel):
 
 class SubmissionDetail(SubmissionOut):
     word_errors: List[WordErrorOut] = []
+    story: Optional[StoryOut] = None
 
 
 # ── Reports ───────────────────────────────────────────────────────────────────

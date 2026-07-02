@@ -2,6 +2,9 @@
 
 import os
 import uuid
+import logging
+
+logger = logging.getLogger(__name__)
 
 from fastapi import APIRouter, Depends, File, Form, HTTPException, UploadFile, status
 from sqlalchemy import select
@@ -58,16 +61,30 @@ async def submit_reading(
     with open(file_path, "wb") as f:
         f.write(contents)
 
-    # Transcribe
+    # Transcribe and ensure files are deleted afterward
     try:
         transcription = transcribe_audio(file_path)
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Transcription failed: {e}")
+    finally:
+        # Clean up original audio file
+        if os.path.exists(file_path):
+            try:
+                os.remove(file_path)
+            except Exception as e:
+                logger.error(f"Error removing original audio: {e}")
+        # Clean up converted WAV file
+        wav_path = file_path + ".wav"
+        if os.path.exists(wav_path):
+            try:
+                os.remove(wav_path)
+            except Exception as e:
+                logger.error(f"Error removing WAV audio: {e}")
 
     # Score
     result = score_reading(story.story_text, transcription)
 
-    # Save submission
+    # Save submission (audio_file_path is kept for metadata/schema compatibility but the file is deleted)
     submission = Submission(
         student_id=current_user.id,
         story_id=story_id,
@@ -90,10 +107,13 @@ async def submit_reading(
         )
     await db.commit()
 
-    # Reload with word errors eagerly loaded
+    # Reload with word errors and story eagerly loaded
     res = await db.execute(
         select(Submission)
-        .options(selectinload(Submission.word_errors))
+        .options(
+            selectinload(Submission.word_errors),
+            selectinload(Submission.story)
+        )
         .where(Submission.id == submission.id)
     )
     return res.scalar_one()
@@ -107,7 +127,10 @@ async def my_submissions(
     """Return all submissions for the current student."""
     result = await db.execute(
         select(Submission)
-        .options(selectinload(Submission.word_errors))
+        .options(
+            selectinload(Submission.word_errors),
+            selectinload(Submission.story)
+        )
         .where(Submission.student_id == current_user.id)
         .order_by(Submission.created_at.desc())
     )

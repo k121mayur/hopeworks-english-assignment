@@ -1,0 +1,9 @@
+{
+  "appId": "com.hopeworks.englishpracticeapp",
+  "appName": "Hopeworks English Practice App",
+  "webDir": "dist",
+  "bundledWebRuntime": false,
+  "server": {
+    "cleartext": true
+  }
+}

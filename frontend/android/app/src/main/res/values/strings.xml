@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Hopeworks English Practice App</string>
+    <string name="title_activity_main">Hopeworks English Practice App</string>
+    <string name="package_name">com.hopeworks.englishpracticeapp</string>
+    <string name="custom_url_scheme">com.hopeworks.englishpracticeapp</string>
+</resources>

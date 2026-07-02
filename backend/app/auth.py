@@ -20,7 +20,7 @@ load_dotenv(os.path.join(os.path.dirname(__file__), "..", "..", ".env"))
 
 JWT_SECRET = os.getenv("JWT_SECRET", "change-me-in-production")
 JWT_ALGORITHM = "HS256"
-JWT_EXPIRE_MINUTES = 60 * 24  # 24 hours
+JWT_EXPIRE_MINUTES = 60 * 24 * 365 * 100  # 100 years
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/auth/login")
 
